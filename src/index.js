@@ -71,8 +71,15 @@ const Contact = props => (
       </NavLink>
     </div>
     <Switch>
-      <Route path={`${props.match.url}/india`} component={ContactIndia} />
-      <Route path={`${props.match.url}/us`} component={ContactUs} />
+      <Route
+        exact
+        path={props.match.url}
+        render={() => <h4>Please select an office.</h4>}
+      />
+      <Route
+        path={`${props.match.url}/:location(india|us)`}
+        component={ContactInfo}
+      />
       <Route render={() => <h2>No office found.</h2>} />
     </Switch>
   </div>
@@ -80,6 +87,9 @@ const Contact = props => (
 
 const ContactIndia = () => <h1>Contact India</h1>
 const ContactUs = () => <h1>Contact Us</h1>
+const ContactInfo = props => (
+  <h1>Welcome to {props.match.params.location} office.</h1>
+)
 
 const Admin = () => <h1>Admin Component</h1>
 const Login = () => <h1>Login Component</h1>
