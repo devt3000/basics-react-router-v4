@@ -6,7 +6,10 @@ import {
   BrowserRouter as Router,
   NavLink,
   Route,
-  Switch
+  Switch,
+  Redirect,
+  Prompt,
+  withRouter
 } from 'react-router-dom';
 
 class App extends React.Component {
@@ -26,7 +29,7 @@ class App extends React.Component {
               <Route path="/about" component={About} />
               <Route path="/contact" component={Contact} />
               <Route path="/admin" component={Admin} />
-              <Route path="login" component={Login} />
+              <Route path="/login" component={Login} />
               <Route render={() => <h1>404 Error</h1>} />
             </Switch>
           </div>
@@ -91,7 +94,98 @@ const ContactInfo = props => (
   <h1>Welcome to {props.match.params.location} office.</h1>
 )
 
-const Admin = () => <h1>Admin Component</h1>
-const Login = () => <h1>Login Component</h1>
+// application state
+const AppState = {
+  loggedIn: false,
+  login: function () {
+    this.loggedIn = true
+  },
+  logout: function () {
+    this.loggedIn = false
+  }
+}
+
+class Admin extends React.Component {
+  constructor (props) {
+    super(props)
+  }
+
+  logout () {
+    AppState.logout()
+    this.props.history.replace('/login')
+  }
+
+  render () {
+    return AppState.loggedIn ? (
+      <div>
+        <h1>Admin Component</h1>
+        <button onClick={this.logout.bind(this)}>Logout</button>
+      </div>
+    ) : (
+      <Redirect to="/login" />
+    )
+  }
+}
+
+class LoginForm extends React.Component {
+  constructor (props) {
+    super(props)
+
+    this.state = {
+      password: '',
+      showPromptOnNav: false
+    }
+  }
+
+  savePassword (event) {
+    this.setState({
+      password: event.target.value,
+      showPromptOnNav: event.target.value.length > 0
+    })
+  }
+
+  handleFormSubmit (event) {
+    event.preventDefault()
+
+    if (this.state.password == 'password') {
+      AppState.login()
+      this.props.history.replace('/admin')
+    } else {
+      alert('Password is wrong')
+    }
+  }
+
+  render () {
+    return (
+      <form onSubmit={this.handleFormSubmit.bind(this)}>
+        <input
+          type="password"
+          placeholder="Type password"
+          value={this.state.password}
+          onChange={this.savePassword.bind(this)}
+        />
+        <button type="submit"> Submit </button>
+
+        <Prompt
+          when={this.state.showPromptOnNav}
+          message="Are you sure? Your data will be lost."
+        />
+      </form>
+    )
+  }
+}
+
+const LoginFormWithProps = withRouter(LoginForm)
+
+class Login extends React.Component {
+  render () {
+    return (
+      <div>
+        <h3>Please sign in.</h3>
+        <LoginFormWithProps />
+      </div>
+    )
+  }
+}
 
 ReactDOM.render(<App />, document.getElementById('app'))
