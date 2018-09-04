@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import "./scss/styles.scss";
+import "./scss/styles.css";
 
 class App extends React.Component {
   constructor() {
